@@ -25,9 +25,9 @@ class Route {
     
     /**
      * 
-     * @var \Closure
+     * @var string|array|\Closure
      */
-    private \Closure $action;
+    private string|array|\Closure $action;
     
     /**
      * 
@@ -39,10 +39,10 @@ class Route {
      * 
      * @param string|array|Method $methods
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      */
-    public function __construct(string|array|Method $methods, private string $uri, callable|\Closure $action, private ?string $name = '') {
+    public function __construct(string|array|Method $methods, private string $uri, string|array|callable|\Closure $action, private ?string $name = '') {
         // HTTP methódusok egységes alakra hozása
         if (is_string($methods) || $methods instanceof Method) {
             $methods = [$methods];
@@ -126,10 +126,10 @@ class Route {
     
     /**
      * 
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @return static
      */
-    public function setAction(callable|\Closure $action): static {
+    public function setAction(string|array|callable|\Closure $action): static {
         $this->action = is_callable($action) ? \Closure::fromCallable($action) : $action;
         return $this;
     }

@@ -73,62 +73,62 @@ class Router {
      * @param string $name
      * @return Route
      */
-    public function get(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function get(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Get], $uri, $action, $name));
     }
     
     /**
      * 
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      * @return Route
      */
-    public function post(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function post(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Post], $uri, $action, $name));
     }
     
     /**
      * 
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      * @return Route
      */
-    public function put(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function put(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Put], $uri, $action, $name));
     }
     
     /**
      * 
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      * @return Route
      */
-    public function patch(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function patch(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Patch], $uri, $action, $name));
     }
     
     /**
      * 
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      * @return Route
      */
-    public function delete(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function delete(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Delete], $uri, $action, $name));
     }
     
     /**
      * 
      * @param string $uri
-     * @param callable|\Closure $action
+     * @param string|array|callable|\Closure $action
      * @param string|null $name
      * @return Route
      */
-    public function any(string $uri, callable|\Closure $action, ?string $name = null): Route {
+    public function any(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
         return $this->addRoute(new Route([Method::Any], $uri, $action, $name));
     }
     
