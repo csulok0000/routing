@@ -1,6 +1,7 @@
 {
     "name": "csulok0000/routing",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Csulok0000\\Routing\\": "src/"
