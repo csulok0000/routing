@@ -1,5 +1,9 @@
 # Routing
 
+![Status: in development](https://img.shields.io/badge/Status-in%20development-red)
+
+> ⚠️ This project is currently under development and **not recommended for production use**.
+
 Simple PHP Router
 
 Author: Tibor Csik <csulok0000@gmail.com>
