@@ -32,6 +32,14 @@ class Router {
     
     /**
      * 
+     * @var array
+     */
+    private array $namedRoutes = [];
+    
+    private DispatcherInterface $defaultDispatcher;
+    
+    /**
+     * 
      * @param string $prefix
      * @param string $namespace
      * @param array $middlewares
@@ -40,6 +48,8 @@ class Router {
         foreach ($middlewares as $middleware) {
             $this->addMiddleware($middleware);
         }
+        
+        $this->defaultDispatcher = new RouteDispatcher();
     }
     
     /**
@@ -73,7 +83,7 @@ class Router {
      * @param string $name
      * @return Route
      */
-    public function get(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function get(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Get], $uri, $action, $name));
     }
     
@@ -81,10 +91,10 @@ class Router {
      * 
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      * @return Route
      */
-    public function post(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function post(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Post], $uri, $action, $name));
     }
     
@@ -92,10 +102,10 @@ class Router {
      * 
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      * @return Route
      */
-    public function put(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function put(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Put], $uri, $action, $name));
     }
     
@@ -103,10 +113,10 @@ class Router {
      * 
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      * @return Route
      */
-    public function patch(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function patch(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Patch], $uri, $action, $name));
     }
     
@@ -114,10 +124,10 @@ class Router {
      * 
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      * @return Route
      */
-    public function delete(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function delete(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Delete], $uri, $action, $name));
     }
     
@@ -125,10 +135,32 @@ class Router {
      * 
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      * @return Route
      */
-    public function any(string $uri, string|array|callable|\Closure $action, ?string $name = null): Route {
+    public function head(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
+        return $this->addRoute(new Route([Method::Head], $uri, $action, $name));
+    }
+    
+    /**
+     * 
+     * @param string $uri
+     * @param string|array|callable|\Closure $action
+     * @param string $name
+     * @return Route
+     */
+    public function options(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
+        return $this->addRoute(new Route([Method::Options], $uri, $action, $name));
+    }
+    
+    /**
+     * 
+     * @param string $uri
+     * @param string|array|callable|\Closure $action
+     * @param string $name
+     * @return Route
+     */
+    public function any(string $uri, string|array|callable|\Closure $action, string $name = ''): Route {
         return $this->addRoute(new Route([Method::Any], $uri, $action, $name));
     }
     
@@ -140,6 +172,12 @@ class Router {
         return $this->routes;
     }
     
+    /**
+     * 
+     * @param array $options
+     * @param callable $groupCallable
+     * @return void
+     */
     public function group(array $options, callable $groupCallable): void {
         $group = new Router(
             prefix: $options['prefix'] ?? '',
@@ -202,12 +240,12 @@ class Router {
             return $this->parent->addRoute($route);
         }
         
-        // Összes metódus
+        // All methods
         $methods = in_array(Method::Any, $route->getMethods()) ? Method::allowedHttpMethods() : $route->getMethods();
         
         $tokens = explode('/', strtolower(trim($route->getUri(), '/')));
         
-        // Minden metódusba eltároljuk
+        // It is stored for the listed methods
         foreach ($methods as $method) {
             $parent = &$this->routes[$method->value];
             
@@ -218,7 +256,11 @@ class Router {
                 $parent = &$parent[$token];
             }
             
-            $parent['#'] = $route;
+            $parent['#'] = &$route;
+        }
+        
+        if ($route->getName()) {
+            $this->namedRoutes[$route->getName()] = &$route;
         }
         
         return $route;
@@ -237,21 +279,21 @@ class Router {
             throw new Exceptions\MethodNotAllowedException('A ' . $httpMethod . ' kérés nem támogatott!');
         }
         
-        // Routeok rendezése
+        // SortingRouteok
         $this->sortRoutes();
         
-        // Nincs route az adott kéréshez
+        // No route for the given request
         if (!$this->routes[$method->value]) {
             return false;
         }
         
-        // Url feldarabolása
+        // Splitting the url
         $tokens = explode('/', strtolower(trim($uri, '/')));
         
-        // Ellenőrízzük, hogy illeszkedik-e valamelyik route-ra
+        // The request is checked to see if it matches any defined route.
         $route = $this->tokenCheck($this->routes[$method->value], $tokens);
         
-        // Nincs találat
+        // Not found
         if (!$route) {
             throw new Exceptions\RouteNotFoundException('A ' . $uri . ' route nem található!');
         }
@@ -259,12 +301,36 @@ class Router {
         return $route;
     }
     
+    /**
+     * 
+     * @param string $httpMethod
+     * @param string $uri
+     * @param DispatcherInterface|null $dispatcher
+     * @return Response
+     */
+    public function dispatch(string $httpMethod, string $uri, ?DispatcherInterface $dispatcher = null): Response {
+        $route = $this->match($httpMethod, $uri);
+        
+        if (!$dispatcher) {
+            $dispatcher = $this->defaultDispatcher;
+        }
+        
+        return $dispatcher->dispatch($route);
+    }
+    
+    /**
+     * 
+     * @param array $routes
+     * @param array $tokens
+     * @param int $index
+     * @return bool|Route
+     */
     private function tokenCheck(array &$routes, array $tokens, int $index = 0): bool|Route {
-        // Ha létezik
         $token = $tokens[$index];
         $route = null;
         $last = count($tokens) - 1 == $index;
 
+        // Exist
         if (isset($routes[$token])) {
             if ($last && ($routes[$token]['#'] instanceof Route)) {
                 return $route = $routes[$token]['#'];
@@ -276,10 +342,10 @@ class Router {
             return false;
         }
         
-        // Változókat nézzük végig
+        // Check variables
         else {
             foreach ($routes as $routeToken => $tmp) {
-                // Csak a változós tokenek érdekelnek
+                // Only "variable" tokens
                 if (strpos($routeToken, '{') !== 0) {
                     continue;
                 }
@@ -316,6 +382,10 @@ class Router {
             }
         }
         ksort($array);
+    }
+    
+    public function generateUrl(string $name, array $parameters): string {
+        throw new \Exception('Not implemented yet!');
     }
     
 }

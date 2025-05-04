@@ -9,12 +9,14 @@ namespace Csulok0000\Routing\Enums;
 
 enum Method: string {
     
-    case Get    = 'get';
-    case Post   = 'post';
-    case Put    = 'put';
-    case Patch  = 'patch';
-    case Delete = 'delete';
-    case Any    = 'any';
+    case Any        = 'any';
+    case Delete     = 'delete';
+    case Get        = 'get';
+    case Head       = 'head';
+    case Options    = 'options';
+    case Patch      = 'patch';
+    case Post       = 'post';
+    case Put        = 'put';
     
     /**
      * 
@@ -24,6 +26,8 @@ enum Method: string {
         return [
             self::Delete,
             self::Get,
+            self::Head,
+            self::Options,
             self::Patch,
             self::Post,
             self::Put

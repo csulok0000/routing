@@ -40,10 +40,10 @@ class Route {
      * @param string|array|Method $methods
      * @param string $uri
      * @param string|array|callable|\Closure $action
-     * @param string|null $name
+     * @param string $name
      */
-    public function __construct(string|array|Method $methods, private string $uri, string|array|callable|\Closure $action, private ?string $name = '') {
-        // HTTP methódusok egységes alakra hozása
+    public function __construct(string|array|Method $methods, private string $uri, string|array|callable|\Closure $action, private string $name = '') {
+        // Bringing HTTP methods to a consistent format
         if (is_string($methods) || $methods instanceof Method) {
             $methods = [$methods];
         }
@@ -76,15 +76,15 @@ class Route {
      * 
      * @return callable
      */
-    public function getAction(): \Closure {
+    public function getAction(): string|array|callable|\Closure {
         return $this->action;
     }
     
     /**
      * 
-     * @return string|null
+     * @return string
      */
-    public function getName(): string|null {
+    public function getName(): string {
         return $this->name;
     }
     
@@ -119,7 +119,7 @@ class Route {
      * @param string $name
      * @return static
      */
-    public function setName(?string $name): static {
+    public function setName(string $name): static {
         $this->name = $name;
         return $this;
     }
